@@ -33,6 +33,18 @@
 	popover.delegate = self;
     
     self.calendarView.calendarDelegate = self;
+    
+//    // For testing setCurrentDate property
+//    NSDate *d = [NSDate dateWithTimeIntervalSinceNow:-99656988];
+//    NSLog(@"%@", d);
+//    [self.calendarView setCurrentDate:d];
+    
+//    NSDateComponents *comps = [[NSDateComponents alloc] init];
+//    comps.year = 2015;
+//    comps.month= 1;
+//    comps.day = 1;
+//    NSDate *toDate = [[NSCalendar currentCalendar] dateFromComponents:comps];
+//    [self.calendarView setCurrentDate:toDate];
 }
 
 - (void)didChangeCalendarDate:(NSDate *)date
@@ -53,6 +65,17 @@
 - (IBAction)popoverButtonAction:(UIButton *)sender
 {
     [popover presentPopoverFromRect:sender.frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+}
+
+- (IBAction)buttonTap:(id)sender
+{
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    NSDateComponents *comps = [[NSDateComponents alloc] init];
+    comps.year = 2014;
+    comps.month= 9;
+    comps.day = 15;
+    NSDate *toDate = [cal dateFromComponents:comps];
+    [self.calendarView setCurrentDate:toDate];
 }
 
 @end

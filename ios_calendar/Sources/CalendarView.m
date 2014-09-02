@@ -86,6 +86,8 @@ static const NSTimeInterval CalendarViewSwipeMonthFadeOutTime = 0.6;
 
 @implementation CalendarView
 
+@synthesize currentDate = _currentDate;
+
 #pragma mark - Initialization
 
 - (id)init
@@ -212,13 +214,30 @@ static const NSTimeInterval CalendarViewSwipeMonthFadeOutTime = 0.6;
 
 #pragma mark - Getting, setting current date
 
-- (void)setCurrentDate:(NSDate *)currentDate
+- (void)setCurrentDate:(NSDate *)date
 {
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:currentDate];
-    currentDay = [components day];
-    currentMonth = [components month];
-    currentYear = [components year];
+    if (date) {
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:date];
+        currentDay = [components day];
+        currentMonth = [components month];
+        currentYear = [components year];
+        
+        switch (type) {
+            case CTDay:
+                [self generateDayRects];
+                break;
+            case CTYear:
+                [self generateYearRects];
+                break;
+            default:
+                break;
+        }
+        
+        [self fade];
+        
+        _currentDate = date;
+    }
 }
 
 - (NSDate *)currentDate
@@ -249,11 +268,17 @@ static const NSTimeInterval CalendarViewSwipeMonthFadeOutTime = 0.6;
 	NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:now];
 	[components setYear:currentYear];
 	[components setMonth:currentMonth];
-	[components setDay:currentDay];
+	[components setDay:1];  // set first day of month
 	
-	NSDate *currentDate = [calendar dateFromComponents:components];
+    NSDate *currentDate = [calendar dateFromComponents:components];
 	NSUInteger lastDayOfMonth = [currentDate getLastDayOfMonth];
-	NSInteger weekday = [currentDate getWeekdayOfFirstDayOfMonth];
+    if (currentDay > lastDayOfMonth) {
+        currentDay = lastDayOfMonth;
+    }
+    
+    [components setDay:currentDay];
+    currentDate = [calendar dateFromComponents:components];
+    NSInteger weekday = [currentDate getWeekdayOfFirstDayOfMonth];
 	
 	const CGFloat yOffSet = CalendarViewDaysYOffset;
 	const CGFloat w = CalendarViewDayCellWidth;
